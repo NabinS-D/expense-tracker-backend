@@ -30,11 +30,18 @@ COPY composer*.json ./
 # Copy existing application directory contents
 COPY . /var/www
 
+# Create .env file from .env.example
+RUN cp .env.example .env
+
 # Install dependencies
 RUN composer install --no-interaction --prefer-dist --optimize-autoloader
 
-# Generate app key if not already set
+# Generate app key
 RUN php artisan key:generate --force
+
+# Set production environment
+RUN sed -i 's/APP_ENV=local/APP_ENV=production/' .env
+RUN sed -i 's/APP_DEBUG=true/APP_DEBUG=false/' .env
 
 # Cache configurations
 RUN php artisan config:cache
