@@ -56,4 +56,4 @@ EXPOSE 2000
 
 # Start Laravel server with the entrypoint script
 ENTRYPOINT ["docker-entrypoint.sh"]
-CMD ["php", "artisan", "serve", "--host=0.0.0.0", "--port=2000"]
+CMD ["php", "artisan", "serve", "--host=0.0.0.0", "--port=${PORT}"]
