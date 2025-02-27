@@ -1,9 +1,21 @@
 services:
   - type: web
-    runtime: node
     name: laravel-backend
+    env: php
+    phpVersion: 8.1  
     buildCommand: |
-      curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
-      composer install --no-dev --no-interaction --prefer-dist --optimize-autoloader
+      # Install Composer locally
+      curl -sS https://getcomposer.org/installer | php
+      # Install PHP dependencies using local Composer
+      php composer.phar install --no-dev --no-interaction --prefer-dist --optimize-autoloader
+      # Generate app key (if missing)
+      php artisan key:generate --force
+      # Cache configurations
       php artisan config:cache
+      php artisan route:cache
     startCommand: "php artisan serve --host=0.0.0.0 --port=${PORT}"
+    envVars:
+      - key: APP_ENV
+        value: production
+      - key: APP_DEBUG
+        value: false
