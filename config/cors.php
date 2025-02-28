@@ -19,7 +19,7 @@ return [
 
     'allowed_methods' => ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
 
-    'allowed_origins' => ['http://localhost:3000'],
+    'allowed_origins' => ['http://localhost:3000','https://expense-tracker-frontend-smoky.vercel.app'],
 
     'allowed_origins_patterns' => [],
 
