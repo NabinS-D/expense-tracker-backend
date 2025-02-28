@@ -1,6 +1,11 @@
 #!/bin/bash
 set -e
 
+# Convert PORT to integer if it's set
+if [ -n "$PORT" ]; then
+    export PORT=$(($PORT))
+fi
+
 # Run database migrations if needed
 if [[ -n "$DB_HOST" && -n "$DB_DATABASE" ]]; then
     echo "Waiting for database to be ready..."
