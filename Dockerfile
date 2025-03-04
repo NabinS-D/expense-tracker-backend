@@ -31,7 +31,7 @@ RUN php artisan route:cache
 COPY docker-entrypoint.sh /usr/local/bin/docker-entrypoint.sh
 RUN chmod +x /usr/local/bin/docker-entrypoint.sh
 
-EXPOSE 2000  # Informational, matches your intent
+EXPOSE 2000
 
 ENTRYPOINT ["docker-entrypoint.sh"]
 CMD ["sh", "-c", "php artisan serve --host=0.0.0.0 --port=${PORT:-2000}"]
