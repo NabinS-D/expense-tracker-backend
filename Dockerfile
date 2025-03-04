@@ -27,6 +27,7 @@ RUN chmod -R 775 /var/www/storage /var/www/bootstrap/cache
 # Copy and configure .env
 COPY .env.example .env
 RUN php artisan key:generate --force
+RUN php artisan config:clear  
 RUN php artisan config:cache
 RUN php artisan route:cache
 
