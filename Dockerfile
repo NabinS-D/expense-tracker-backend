@@ -14,23 +14,27 @@ COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
 WORKDIR /var/www
 
-COPY composer.json composer.lock ./
-RUN composer install --no-interaction --prefer-dist --optimize-autoloader
-
+# Copy the entire app first (including artisan)
 COPY . /var/www
+
+# Run composer install after copying the app
+RUN composer install --no-interaction --prefer-dist --optimize-autoloader
 
 # Set permissions
 RUN chown -R www-data:www-data /var/www/storage /var/www/bootstrap/cache
 RUN chmod -R 775 /var/www/storage /var/www/bootstrap/cache
 
+# Copy and configure .env
 COPY .env.example .env
 RUN php artisan key:generate --force
 RUN php artisan config:cache
 RUN php artisan route:cache
 
+# Copy entrypoint
 COPY docker-entrypoint.sh /usr/local/bin/docker-entrypoint.sh
 RUN chmod +x /usr/local/bin/docker-entrypoint.sh
 
+# Expose port 2000 for php artisan serve
 EXPOSE 2000
 
 ENTRYPOINT ["docker-entrypoint.sh"]
