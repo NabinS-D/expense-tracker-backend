@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Category;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\Auth;
 
 class CategoryController extends Controller
 {
@@ -14,7 +15,10 @@ class CategoryController extends Controller
      */
     public function index()
     {
-        $categories = Category::with("expenses", "budget")->get(); // Fetch all categories
+        $userId = Auth::id(); // Get the authenticated user's ID
+        $categories = Category::where('user_id', $userId)
+            ->with("expenses", "budget")
+            ->get();
         return response()->json($categories, 200);
     }
 
@@ -23,18 +27,27 @@ class CategoryController extends Controller
      */
     public function store(Request $request)
     {
+        $userId = Auth::id(); // Get the authenticated user's ID
+
         // Validate input
         $validator = Validator::make($request->all(), [
-            'name' => 'required|string|max:255|unique:categories,name',
+            'name' => [
+                'required',
+                'string',
+                'max:255',
+                // Unique per user
+                'unique:categories,name,NULL,id,user_id,' . $userId
+            ],
         ]);
 
         if ($validator->fails()) {
             return response()->json(['errors' => $validator->errors()], 422);
         }
 
-        // Create the category
+        // Create the category for the authenticated user
         $category = Category::create([
             'name' => $request->name,
+            'user_id' => $userId, // Set the user ID
         ]);
 
         return response()->json(['message' => 'Category created successfully', 'category' => $category], 201);
@@ -45,7 +58,10 @@ class CategoryController extends Controller
      */
     public function show($id)
     {
-        $category = Category::find($id);
+        $userId = Auth::id(); // Get the authenticated user's ID
+        $category = Category::where('id', $id)
+            ->where('user_id', $userId)
+            ->first();
 
         if (!$category) {
             return response()->json(['message' => 'Category not found'], 404);
@@ -59,7 +75,10 @@ class CategoryController extends Controller
      */
     public function update(Request $request, $id)
     {
-        $category = Category::find($id);
+        $userId = Auth::id(); // Get the authenticated user's ID
+        $category = Category::where('id', $id)
+            ->where('user_id', $userId)
+            ->first();
 
         if (!$category) {
             return response()->json(['message' => 'Category not found'], 404);
@@ -67,7 +86,13 @@ class CategoryController extends Controller
 
         // Validate input
         $validator = Validator::make($request->all(), [
-            'name' => 'required|string|max:255|unique:categories,name,' . $id,
+            'name' => [
+                'required',
+                'string',
+                'max:255',
+                // Unique per user, excluding current category
+                'unique:categories,name,' . $id . ',id,user_id,' . $userId
+            ],
         ]);
 
         if ($validator->fails()) {
@@ -87,7 +112,10 @@ class CategoryController extends Controller
      */
     public function destroy($id)
     {
-        $category = Category::find($id);
+        $userId = Auth::id(); // Get the authenticated user's ID
+        $category = Category::where('id', $id)
+            ->where('user_id', $userId)
+            ->first();
 
         if (!$category) {
             return response()->json(['message' => 'Category not found'], 404);
